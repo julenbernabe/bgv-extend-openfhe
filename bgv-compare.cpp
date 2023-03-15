@@ -132,24 +132,24 @@ void intComparator() {
     std::cout << "\t - First integer: ";
     std::cin >> first;
     while (first > (p-1)/2) {
-        std::cout << "\nInteger must be between " << -(p - 1) / 2 << " and " << (p - 1) / 2 << std::endl;
+        std::cout << "\nInteger must be between " << -(p - 1) / 4 << " and " << (p - 1) / 4 << std::endl;
         std::cout << "First integer: ";
         std::cin >> first;
     }
     while (first < -(p-1)/2) {
-        std::cout << "\nInteger must be between " << -(p - 1) / 2 << " and " << (p - 1) / 2 << std::endl;
+        std::cout << "\nInteger must be between " << -(p - 1) / 4 << " and " << (p - 1) / 4 << std::endl;
         std::cout << "First integer: ";
         std::cin >> first;
     }
     std::cout << "\t - Second integer: ";
     std::cin >> second;
     while (second > (p-1)/2) {
-        std::cout << "\nInteger must be between " << -(p - 1) / 2 << " and " << (p - 1) / 2 << std::endl;
+        std::cout << "\nInteger must be between " << -(p - 1) / 4 << " and " << (p - 1) / 4 << std::endl;
         std::cout << "Second integer: ";
         std::cin >> second;
     }
     while (second < -(p-1)/2) {
-        std::cout << "\nInteger must be between " << -(p - 1) / 2 << " and " << (p - 1) / 2 << std::endl;
+        std::cout << "\nInteger must be between " << -(p - 1) / 4 << " and " << (p - 1) / 4 << std::endl;
         std::cout << "Second integer: ";
         std::cin >> second;
     }
