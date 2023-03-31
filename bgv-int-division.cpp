@@ -27,9 +27,8 @@ std::string intro() {
 
     std::cout << "\n\n############# BGV INTEGER DIVISION #############\n\n"<< std::endl;
     std::cout << "Choose between:"<< std::endl;
-    std::cout << "\t - Integer comparison (i)"<< std::endl;
-    std::cout << "\t - String comparison (s)"<< std::endl;
-    std::cout << "\t - Quit (q)"<< std::endl;
+    std::cout << "\t - Integer division (ID)"<< std::endl;
+    std::cout << "\t - Quit (Q)"<< std::endl;
     std::string operation;
     std::cin >> operation;
     return operation;
@@ -104,16 +103,13 @@ void intDivision() {
 
 int main() {
 
-    // std::string operation = intro();
-    // while (operation != "q") {
-    //     if (operation == "i") {
-    //         intComparator();
-    //     } else if (operation == "s") {
-    //         stringComparator();
-    //     } else {
-    //         std::cout << "Please, introduce a valid value."<< std::endl;
-    //     }
-    //     operation = intro();
-    // }
-    intDivision();
+    std::string operation = intro();
+    while (operation != "Q") {
+        if (operation == "ID") {
+            intDivision();
+        } else {
+            std::cout << "Please, introduce a valid value."<< std::endl;
+        }
+        operation = intro();
+    }
 }

@@ -37,57 +37,6 @@ std::vector<Ciphertext<DCRTPoly>> powersOfTwo(Ciphertext<DCRTPoly> ciphertext, u
 }
 
 /*
- * Computes powers of ciphertexts mod p up until exp = p-1. The exponent is public.
- * 
- */
-Ciphertext<DCRTPoly> power(Ciphertext<DCRTPoly> ciphertext, uint exp, cryptoTools cc) {
-    // Compute binary representation of exponent
-    std::vector<uint> binaryRep = binaryRepresentationOfExp(exp);
-
-    // Compute vector {c^{2⁰}, c^{2¹}, c^{2²}, ..., c^{2^{length(binaryRep}}}
-    std::vector<Ciphertext<DCRTPoly>> preComputedValues = powersOfTwo(ciphertext, binaryRep.size(), cc);
-
-    // Create new ciphertext to compute the result. Ciphertext is initialized by encrypting a 1.
-    std::vector<int64_t> vectorOfOne = {1};
-    Plaintext plaintextOne               = cc.cryptoContext->MakePackedPlaintext(vectorOfOne);
-    Ciphertext<DCRTPoly> ciphertextResult = cc.cryptoContext->Encrypt(cc.keyPair.publicKey, plaintextOne);
-
-    // Compute encrypted result using preComputedValues
-    for (uint i = 0; i <= binaryRep.size(); i++) {
-        if (binaryRep[i] == 1) {
-            ciphertextResult = cc.cryptoContext->EvalMult(ciphertextResult, preComputedValues[i]);
-        }
-    }
-
-    return ciphertextResult;   
-}
-
-Ciphertext<DCRTPoly> powerV(Ciphertext<DCRTPoly> ciphertext, uint exp, usint batchSize, cryptoTools cc) {
-    // Compute binary representation of exponent
-    std::vector<uint> binaryRep = binaryRepresentationOfExp(exp);
-
-    // Compute vector {c^{2⁰}, c^{2¹}, c^{2²}, ..., c^{2^{length(binaryRep}}}
-    std::vector<Ciphertext<DCRTPoly>> preComputedValues = powersOfTwo(ciphertext, binaryRep.size(), cc);
-
-    // Create new ciphertext to compute the result. Ciphertext is initialized by encrypting a 1.
-    std::vector<int64_t> vectorOfOne;
-    for (usint i = 0; i < batchSize; i++) {
-        vectorOfOne.push_back(1);
-    }
-    Plaintext plaintextOne               = cc.cryptoContext->MakePackedPlaintext(vectorOfOne);
-    Ciphertext<DCRTPoly> ciphertextResult = cc.cryptoContext->Encrypt(cc.keyPair.publicKey, plaintextOne);
-
-    // Compute encrypted result using preComputedValues
-    for (uint i = 0; i <= binaryRep.size(); i++) {
-        if (binaryRep[i] == 1) {
-            ciphertextResult = cc.cryptoContext->EvalMult(ciphertextResult, preComputedValues[i]);
-        }
-    }
-
-    return ciphertextResult;   
-}
-
-/*
  * Computes array of powers of ciphertexts: {c¹, c², ..., c^{p-1}}
  * 
  */
@@ -122,8 +71,4 @@ std::vector<Ciphertext<DCRTPoly>> powers(Ciphertext<DCRTPoly> ciphertext, crypto
         result.push_back(ciphertextResult);
     }
     return result;   
-}
-
-int counter(std::vector<uint> binaryArray1) {
-    return std::count(binaryArray1.begin(), binaryArray1.end(), 1);
 }
