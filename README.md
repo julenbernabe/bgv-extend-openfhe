@@ -13,6 +13,7 @@ Once you have completed the installation steps, you can now use the code availab
 ## Installation of the repository
 
 1. Download the repository.
-2. Enter the build folder and open a terminal inside it.
-3. Run `make`. This will create two executables: `bgv-compare` and `bgv-int-division`.
-4. To run comparisons over BGV, run `./bgv-compare`. To run integer divisions, run `./bgv-int-division`.
+2. Create a `build` folder using `mkdir build` and `cd` to it.
+3. Run `cmake ..`.
+4. Then run `make`. This will create two executables: `bgv-compare` and `bgv-int-division`.
+5. To run comparisons over BGV, run `./bgv-compare`. To run integer divisions, run `./bgv-int-division`.

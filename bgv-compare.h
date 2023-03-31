@@ -19,48 +19,6 @@
 using namespace lbcrypto;
 
 
-Ciphertext<DCRTPoly> equal(Ciphertext<DCRTPoly> c1, Ciphertext<DCRTPoly> c2, cryptoTools cc) {
-    // Compute difference = c1 - c2
-    Ciphertext<DCRTPoly> difference = cc.cryptoContext->EvalSub(c1, c2);
-    
-    // Compute f = a^{p-1}. By Fermat's Little Theorem: 
-    //      - If a != 0 then f = 1
-    //      - If a = 0 then f = 0
-    Ciphertext<DCRTPoly> f = power(difference, (cc.cryptoContext->GetCryptoParameters()->GetPlaintextModulus()) - 1, cc);
-
-    // Want to invert the result now, i.e., if c1 == c2 return 1, not 0. For that we do: (-f) + 1.
-    // Observe that:
-    //      - If f = 0: r = (-f) + 1 = 0 + 1 = 1
-    //      - If f = 1: r = (-f) + 1 = -1 + 1 = 0
-
-    // Compute fNeg = -f
-    Ciphertext<DCRTPoly> fNeg = cc.cryptoContext->EvalNegate(f);
-
-    // Create ciphertext with value 1:
-    std::vector<int64_t> vectorOfOne = {1};
-    Plaintext plaintextOne               = cc.cryptoContext->MakePackedPlaintext(vectorOfOne);
-    Ciphertext<DCRTPoly> cOne = cc.cryptoContext->Encrypt(cc.keyPair.publicKey, plaintextOne);
-
-    // Compute fNeg + cOne = fNeg + 1
-    Ciphertext<DCRTPoly> result = cc.cryptoContext->EvalAdd(fNeg, cOne);
-    return result;
-}
-
-Ciphertext<DCRTPoly> equalV(Ciphertext<DCRTPoly> c1, Ciphertext<DCRTPoly> c2, usint batchSize, cryptoTools cc) {
-    // Compute difference = c1 - c2
-    Ciphertext<DCRTPoly> difference = cc.cryptoContext->EvalSub(c1, c2);
-    
-    // Compute f = a^{p-1}. By Fermat's Little Theorem: 
-    //      - If a != 0 then f = 1
-    //      - If a = 0 then f = 0
-    Ciphertext<DCRTPoly> pref = powerV(difference, (cc.cryptoContext->GetCryptoParameters()->GetPlaintextModulus()) - 1, batchSize, cc);
-
-    // Compute the sum of the first n components (batchSize = n)
-    Ciphertext<DCRTPoly> result = cc.cryptoContext->EvalSum(pref, batchSize);
-
-    return result;
-}
-
 interpolationPoints evalSignPoints(int p) {
     interpolationPoints ip;
     ip.x.push_back(0);
@@ -73,6 +31,22 @@ interpolationPoints evalSignPoints(int p) {
             ip.x.push_back(-(p-i));
             ip.fx.push_back(-1);
         }  
+    }
+    return ip;
+}
+
+interpolationPoints evalEqualPoints(int p) {
+    interpolationPoints ip;
+    ip.x.push_back(0);
+    ip.fx.push_back(1);
+    for (int i = 1; i < p; i++) {
+        if (i <= (p-1)/2) {
+            ip.x.push_back(i);
+            ip.fx.push_back(0);
+        } else if (i > (p-1)/2) {
+            ip.x.push_back(-(p-i));
+            ip.fx.push_back(0);
+        }
     }
     return ip;
 }
@@ -151,6 +125,16 @@ Ciphertext<DCRTPoly> sign(Ciphertext<DCRTPoly> c, cryptoTools cc) {
     return evaluation;
 }
 
+Ciphertext<DCRTPoly> equalZero(Ciphertext<DCRTPoly> c, cryptoTools cc) {
+    int p = cc.cryptoContext->GetCryptoParameters()->GetPlaintextModulus();
+    std::vector<Ciphertext<DCRTPoly>> cPowers = powers(c, cc);
+    interpolationPoints ip = evalEqualPoints(p);
+    std::vector<int64_t> poly = getLagrangePoly(ip, p);
+    std::vector<Ciphertext<DCRTPoly>> cPoly = encryptInterpolator(poly, cc);
+    Ciphertext<DCRTPoly> evaluation = evalInterpolator(cPowers, cPoly, cc);
+    return evaluation;
+}
+
 Ciphertext<DCRTPoly> greaterThanZero(Ciphertext<DCRTPoly> c, cryptoTools cc) {
     int p = cc.cryptoContext->GetCryptoParameters()->GetPlaintextModulus();
     std::vector<Ciphertext<DCRTPoly>> cPowers = powers(c, cc);
@@ -189,6 +173,15 @@ Ciphertext<DCRTPoly> lowerEqualThanZero(Ciphertext<DCRTPoly> c, cryptoTools cc) 
     std::vector<Ciphertext<DCRTPoly>> cPoly = encryptInterpolator(poly, cc);
     Ciphertext<DCRTPoly> evaluation = evalInterpolator(cPowers, cPoly, cc);
     return evaluation;
+}
+
+Ciphertext<DCRTPoly> equal(Ciphertext<DCRTPoly> c1, Ciphertext<DCRTPoly> c2, cryptoTools cc) {
+    // Compute difference = c1 - c2
+    Ciphertext<DCRTPoly> difference = cc.cryptoContext->EvalSub(c1, c2);
+    
+    Ciphertext<DCRTPoly> result = equalZero(difference, cc);
+
+    return result;
 }
 
 Ciphertext<DCRTPoly> gt(Ciphertext<DCRTPoly> c1, Ciphertext<DCRTPoly> c2, cryptoTools cc) {

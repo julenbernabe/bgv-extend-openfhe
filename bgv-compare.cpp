@@ -25,64 +25,6 @@
 using namespace lbcrypto;
 
 
-void stringComparator() {
-
-    std::cout << "\nBGV STRING COMPARATOR\n "<< std::endl;
-
-    // -------------------- CLIENT SIDE --------------------
-
-    std::string first, second;
-    std::cout << "Enter two words: "<< std::endl;
-    std::cout << "\t - First word: ";
-    std::cin >> first;
-    std::cout << "\t - Second word: ";
-    std::cin >> second;
-
-    // First string
-    std::vector<int64_t> firstV;
-    for (uint i = 0; i < first.length(); i++) {
-        firstV.push_back(int64_t(first[i]));
-    }
-
-    // Second string
-    std::vector<int64_t> secondV;
-    for (uint i = 0; i < second.length(); i++) {
-        secondV.push_back(int64_t(second[i]));
-    }
-    
-    cryptoTools cc = genCryptoTools(257, 16);
-
-    Ciphertext<DCRTPoly> c3 = encryptV(firstV, cc);
-    Ciphertext<DCRTPoly> c4 = encryptV(secondV, cc);
-
-    // -----------------------------------------------------
-
-    // Here the ciphertexts are sent to the server
-
-    // -------------------- SERVER SIDE --------------------
-    time_t timer3;
-    time_t timer4;
-    double seconds1;
-    time(&timer3);
-    usint batchSize = 16;
-    Ciphertext<DCRTPoly> resultV = equalV(c3, c4, batchSize, cc);
-    time(&timer4);
-    seconds1 = difftime(timer4,timer3);
-
-    // -----------------------------------------------------
-
-    // Here the result is sent to the client
-
-    // -------------------- CLIENT SIDE --------------------
-
-    std::vector<int64_t> result = decrypt(resultV, cc);
-    std::cout << "\nNumber of different letters: " << result[0] << std::endl;
-    if (result[0] == 0) {
-        std::cout << "Words are equal!" << std::endl;
-    }
-    std::cout << "\nTime used to compare: " << seconds1 << " seconds "<< std::endl;
-}
-
 void getSign() {
 
     std::cout << "\nBGV GET SIGN\n "<< std::endl;
@@ -204,7 +146,6 @@ std::string intro() {
     std::cout << "\n\n############# BGV COMPARATOR #############\n\n"<< std::endl;
     std::cout << "Choose between:"<< std::endl;
     std::cout << "\t - Integer comparison (IC)"<< std::endl;
-    std::cout << "\t - String comparison (SC)"<< std::endl;
     std::cout << "\t - Sign of number (S)"<< std::endl;
     std::cout << "\t - Quit (Q)"<< std::endl;
     std::string operation;
@@ -218,8 +159,6 @@ int main() {
     while (operation != "Q") {
         if (operation == "IC") {
             intComparator();
-        } else if (operation == "SC") {
-            stringComparator();
         } else if (operation == "S") {
             getSign();
         } else {

@@ -1,6 +1,0 @@
-/home/julen/julen/brokel/research/openfhe-personal/build/CMakeFiles/prueba-bin.dir
-/home/julen/julen/brokel/research/openfhe-personal/build/CMakeFiles/prueba-bgv.dir
-/home/julen/julen/brokel/research/openfhe-personal/build/CMakeFiles/bgv-compare.dir
-/home/julen/julen/brokel/research/openfhe-personal/build/CMakeFiles/bgv-int-division.dir
-/home/julen/julen/brokel/research/openfhe-personal/build/CMakeFiles/edit_cache.dir
-/home/julen/julen/brokel/research/openfhe-personal/build/CMakeFiles/rebuild_cache.dir
