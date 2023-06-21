@@ -58,7 +58,7 @@ int clearPower(int n, int exp, int p) {
     // Compute encrypted result using preComputedValues
     for (uint i = 0; i <= binaryRep.size(); i++) {
         if (binaryRep[i] == 1) {
-            result = result * preComputedValues[i];
+            result = result * preComputedValues[i] % p;
         }
     }
 

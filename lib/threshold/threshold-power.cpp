@@ -18,27 +18,34 @@
 
 using namespace lbcrypto;
 
-/*
- * Computes vector of ciphertexts containing: {c^{2⁰}, c^{2¹}, c^{2²}, ..., c^{2^{length(binaryRep}}}
+/**
+ * @brief Compute vector of ciphertexts containing: {c^{2^0}, c^{2^1}, c^{2^2}, ..., c^{2^{bit-length}}
  * 
+ * @param ciphertext the ciphertext to use as input
+ * @param bitLength bit length of p
+ * @param cc cryptographical context
+ * @return std::vector<Ciphertext<DCRTPoly>> containing {c^{2^0}, c^{2^1}, c^{2^2}, ..., c^{2^{bit-length}}
  */
-std::vector<Ciphertext<DCRTPoly>> powersOfTwo(Ciphertext<DCRTPoly> ciphertext, uint binaryRepresentationLength, cryptoTools cc) {
-    // Initialize vector of ciphertexts containing: {c^{2⁰}, c^{2¹}, c^{2²}, ..., c^{2^{length(binaryRep}}}
+std::vector<Ciphertext<DCRTPoly>> powersOfTwo(Ciphertext<DCRTPoly> ciphertext, uint bitLength, cryptoTools cc) {
+    // Initialize vector of ciphertexts containing: {c^{2^0}, c^{2^1}, c^{2^2}, ..., c^{2^{bit-length}}
     std::vector<Ciphertext<DCRTPoly>> preComputedValues;
     
-    // Add c^{2⁰} = c to preComputedValues
+    // Add c^{2^0} = c to preComputedValues
     preComputedValues.push_back(ciphertext);
 
     // Fill preComputedValues with remaining powers
-    for (uint i = 1; i <= binaryRepresentationLength; i++) {
+    for (uint i = 1; i <= bitLength; i++) {
         preComputedValues.push_back(cc.cryptoContext->EvalMult(preComputedValues[i-1], preComputedValues[i-1]));
     }
     return preComputedValues;
 }
 
-/*
- * Computes array of powers of ciphertexts: {c¹, c², ..., c^{p-1}}
+/**
+ * @brief Compute array of powers of ciphertexts: {c, c^2, ..., c^{p-1}}
  * 
+ * @param ciphertext the ciphertext to use as input
+ * @param cc cryptographical context
+ * @return std::vector<Ciphertext<DCRTPoly>> containing {c, c^2, ..., c^{p-1}}
  */
 std::vector<Ciphertext<DCRTPoly>> powers(Ciphertext<DCRTPoly> ciphertext, cryptoTools cc) {
     uint max = (cc.cryptoContext->GetCryptoParameters()->GetPlaintextModulus()) - 1;
@@ -46,7 +53,7 @@ std::vector<Ciphertext<DCRTPoly>> powers(Ciphertext<DCRTPoly> ciphertext, crypto
     // Compute binary representation of exponent
     std::vector<uint> binaryRep = binaryRepresentationOfExp(max);
 
-    // Compute vector {c^{2⁰}, c^{2¹}, c^{2²}, ..., c^{2^{length(binaryRep}}}
+    // Compute vector {c^{2^0}, c^{2^1}, c^{2^2}, ..., c^{2^{bit-length}}
     std::vector<Ciphertext<DCRTPoly>> preComputedValues = powersOfTwo(ciphertext, binaryRep.size(), cc);
 
     // Structure containing the result
@@ -58,9 +65,7 @@ std::vector<Ciphertext<DCRTPoly>> powers(Ciphertext<DCRTPoly> ciphertext, crypto
         std::vector<uint> binaryRep = binaryRepresentationOfExp(i);
 
         // Create new ciphertext to compute the result. Ciphertext is initialized by encrypting a 1.
-        std::vector<int64_t> vectorOfOne = {1};
-        Plaintext plaintextOne               = cc.cryptoContext->MakePackedPlaintext(vectorOfOne);
-        Ciphertext<DCRTPoly> ciphertextResult = cc.cryptoContext->Encrypt(cc.keyPair.publicKey, plaintextOne);
+        Ciphertext<DCRTPoly> ciphertextResult = encryptThresholdBGV(1, cc.pks[cc.lastKey], cc.cryptoContext);
 
         // Compute encrypted results using preComputedValues
         for (uint j = 0; j <= binaryRep.size(); j++) {

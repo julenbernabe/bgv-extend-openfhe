@@ -46,6 +46,7 @@ endif()
 ### add_executable( EXECUTABLE-NAME SOURCES )
 ###
 ### EXAMPLE:
-add_executable( bgv-compare bgv-compare.cpp )
-add_executable( bgv-int-division bgv-int-division.cpp )
-# add_executable( test demo-simple-example.cpp )
+add_executable( bgv-compare src/bgv-compare.cpp )
+add_executable( bgv-int-division src/bgv-int-division.cpp )
+add_executable( threshold-compare src/threshold-compare.cpp )
+add_executable( threshold-division src/threshold-division.cpp )

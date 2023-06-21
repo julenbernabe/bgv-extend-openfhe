@@ -23,6 +23,18 @@ struct crypto {
 };
 
 typedef struct crypto cryptoTools;
+/** 
+ * @brief Structure for storing X and Y sets from Step 1
+ * 
+ * @param x: array containing the elements of X
+ * @param fx: array containing the elements of Y (the f(x)'s)
+ */
+struct Points {
+    std::vector<int64_t> x;
+    std::vector<int64_t> fx;
+};
+
+typedef struct Points interpolationPoints;
 
 /*
  * Context setup utility methods
@@ -61,7 +73,6 @@ cryptoTools genCryptoTools(usint p, usint level) {
     // Key generation
     cc.keyPair = cc.cryptoContext->KeyGen();
     cc.cryptoContext->EvalMultKeyGen(cc.keyPair.secretKey);
-    cc.cryptoContext->EvalSumKeyGen(cc.keyPair.secretKey);
     return cc;
 }
 

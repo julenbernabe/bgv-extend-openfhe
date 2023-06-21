@@ -15,12 +15,12 @@
 #include <iterator>
 #include <random>
 #include <time.h>
-#include "lib.h"
-#include "bgv-basics.h"
-#include "bgv-power.h"
-#include "bgv-interpolation.h"
-#include "bgv-compare.h"
-#include "bgv-int-division.h"
+#include "../lib/lib.cpp"
+#include "../lib/bgv/bgv-basics.cpp"
+#include "../lib/bgv/bgv-power.cpp"
+#include "../lib/bgv/bgv-interpolation.cpp"
+#include "../lib/bgv/bgv-compare.cpp"
+#include "../lib/bgv/bgv-int-division.cpp"
 
 
 std::string intro() {

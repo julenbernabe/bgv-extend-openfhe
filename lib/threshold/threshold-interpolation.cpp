@@ -17,13 +17,26 @@
 
 using namespace lbcrypto;
 
+/** 
+ * @brief Structure for storing X and Y sets from Step 1
+ * 
+ * @param x: array containing the elements of X
+ * @param fx: array containing the elements of Y (the f(x)'s)
+ */
 struct Points {
     std::vector<int64_t> x;
     std::vector<int64_t> fx;
 };
 
 typedef struct Points interpolationPoints;
-
+/**
+ * @brief Compute the product between two polynomials mod p
+ * 
+ * @param px first polynomial
+ * @param qx second polynomial
+ * @param p prime number
+ * @return std::vector<int64_t> containing coefficients of result
+ */
 std::vector<int64_t> polyProd(std::vector<int64_t> px, std::vector<int64_t> qx, int p) {
    std::vector<int64_t> rx;
    int rsize = px.size() + qx.size() - 1;
@@ -38,7 +51,14 @@ std::vector<int64_t> polyProd(std::vector<int64_t> px, std::vector<int64_t> qx, 
    }
    return rx;
 }
-
+/**
+ * @brief Compute the addition of two polynomials mod p
+ * 
+ * @param px first polynomial
+ * @param qx second polynomial
+ * @param p prime number
+ * @return std::vector<int64_t> containing coefficients of result
+ */
 std::vector<int64_t> polyAdd(std::vector<int64_t> px, std::vector<int64_t> qx, int p) {
     std::vector<int64_t> rx;
     uint maxDegree = std::max(px.size(), qx.size());
@@ -53,7 +73,13 @@ std::vector<int64_t> polyAdd(std::vector<int64_t> px, std::vector<int64_t> qx, i
     }
     return rx;
 }
-
+/**
+ * @brief Make coefficients of polynomial be mod p
+ * 
+ * @param px polynomial to be normalized
+ * @param p prime number
+ * @return std::vector<int64_t> containing the normalized coefficients
+ */
 std::vector<int64_t> normalizePoly(std::vector<int64_t> px, int p) {
     std::vector<int64_t> rx;
     for (uint i = 0; i < px.size(); i++) {
@@ -66,39 +92,58 @@ std::vector<int64_t> normalizePoly(std::vector<int64_t> px, int p) {
     }
     return rx;
 }
-
+/**
+ * @brief Get the Lagrange Polynomial using Lagrange's Interpolation Formula
+ * 
+ * @param ip interpolation points (struct containing X and Y from Step 1)
+ * @param p prime number
+ * @return std::vector<int64_t> 
+ */
 std::vector<int64_t> getLagrangePoly(interpolationPoints ip, int p) {
     std::vector<int64_t> result;
-    for (uint i = 0; i < ip.x.size(); i++) {
+    for (uint i = 0; i < ip.x.size(); i++) {///< initialize polynomial for the result
         result.push_back(0);
     }
-    for (uint i = 0; i < ip.x.size(); i++) {
+    for (uint i = 0; i < ip.x.size(); i++) {///< loop for computing the summation
         std::vector<int64_t> roundResult = {1};
         int64_t denominator = 1;
-        for (uint j = 0; j < ip.x.size(); j++) {
+        for (uint j = 0; j < ip.x.size(); j++) {///< loop for computing prod(x-xj)(xi-xj)
             if (i != j) {
                 std::vector<int64_t> monomial = {-ip.x[j], 1};
                 roundResult = polyProd(roundResult, monomial, p);
                 denominator = (denominator * (ip.x[i] - ip.x[j])) % p;
             }
         }
-        std::vector<int64_t> scalar = {inverse(denominator, p) * ip.fx[i]};
+        std::vector<int64_t> scalar = {inverse(denominator, p) * ip.fx[i]};///< compute inverse of prod(xi-xj)
         roundResult = polyProd(roundResult, scalar, p);
         result = polyAdd(roundResult, result, p);
     }
     return normalizePoly(result, p);
 }
-
+/**
+ * @brief Encrypt the coefficients of the interpolation polynomial
+ * 
+ * @param poly polynomial to be encrypted
+ * @param cc cryptographical context for the encryption
+ * @return std::vector<Ciphertext<DCRTPoly>> array of ciphertexts with the encryption of each coefficient
+ */
 std::vector<Ciphertext<DCRTPoly>> encryptInterpolator(std::vector<int64_t> poly, cryptoTools cc) {
     std::vector<Ciphertext<DCRTPoly>> result;
     for (uint i = 0; i < poly.size(); i++){
-        result.push_back(encrypt(poly[i], cc));
+        result.push_back(encryptThresholdBGV(poly[i], cc.pks[cc.lastKey], cc.cryptoContext));
     }
     return result;
 }
-
+/**
+ * @brief Evaluate Lagrange's Polynomial for some ciphertext c
+ * 
+ * @param powers the powers of c (i.e. {c, c^2, ..., c^{p-1}})
+ * @param polynomial Lagranges Interpolation Polynomial
+ * @param cc cryptographical context
+ * @return Ciphertext<DCRTPoly> ciphertext containing the result of the evaluation
+ */
 Ciphertext<DCRTPoly> evalInterpolator(std::vector<Ciphertext<DCRTPoly>> powers, std::vector<Ciphertext<DCRTPoly>> polynomial, cryptoTools cc) {
-    Ciphertext<DCRTPoly> result = encrypt(0, cc);
+    Ciphertext<DCRTPoly> result = encryptThresholdBGV(0, cc.pks[cc.lastKey], cc.cryptoContext);
     result = cc.cryptoContext->EvalAdd(result, polynomial[0]);
     for (uint i = 0; i < powers.size(); i++) {
         Ciphertext<DCRTPoly> product = cc.cryptoContext->EvalMult(powers[i], polynomial[i+1]);
@@ -106,4 +151,3 @@ Ciphertext<DCRTPoly> evalInterpolator(std::vector<Ciphertext<DCRTPoly>> powers, 
     }
     return result;
 }
-
