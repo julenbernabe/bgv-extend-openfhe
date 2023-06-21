@@ -5,7 +5,7 @@
  */
 
 /*
- * Comparaciones en BGV
+ * Threshold main comparisons program
  */
 
 #include "scheme/bgvrns/cryptocontext-bgvrns.h"

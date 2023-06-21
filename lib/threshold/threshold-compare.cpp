@@ -1,9 +1,11 @@
-// Created on February 13 2023
-// By Julen Bernabe Rodriguez <julen.bernabe@tecnalia.com>
-// Copyright (c) 2023 Tecnalia Research & Innovation
+/**
+ * @ Author: Julen Bernabe Rodriguez <julen.bernabe@tecnalia.com>
+ * @ Create Time: 2023-06-14 11:50:19
+ * @ Description: Copyright (c) 2023 Tecnalia Research & Innovation
+ */
 
 /*
- * Comparaciones en BGV
+ * Threshold comparisons
  */
 
 #include "scheme/bgvrns/cryptocontext-bgvrns.h"

@@ -3,7 +3,7 @@
 // Copyright (c) 2023 Tecnalia Research & Innovation
 
 /*
- * Comparaciones en BGV
+ * BGV main integer division program
  */
 
 #include "scheme/bgvrns/cryptocontext-bgvrns.h"

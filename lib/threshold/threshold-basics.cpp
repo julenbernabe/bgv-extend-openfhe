@@ -5,7 +5,7 @@
  */
 
 /*
- * BGV basics
+ * Threshold basics
  */
 
 #include "scheme/bgvrns/cryptocontext-bgvrns.h"

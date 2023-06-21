@@ -3,7 +3,7 @@
 // Copyright (c) 2023 Tecnalia Research & Innovation
 
 /*
- * BGV basics
+ * BGV interpolation
  */
 
 #include "scheme/bgvrns/cryptocontext-bgvrns.h"
